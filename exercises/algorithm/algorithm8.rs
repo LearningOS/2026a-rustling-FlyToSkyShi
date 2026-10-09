@@ -2,7 +2,7 @@
 	queue
 	This question requires you to use queues to implement the functionality of the stac
 */
-// I AM NOT DONE
+
 
 #[derive(Debug)]
 pub struct Queue<T> {
@@ -54,28 +54,47 @@ impl<T> Default for Queue<T> {
 
 pub struct myStack<T>
 {
-	//TODO
 	q1:Queue<T>,
 	q2:Queue<T>
 }
 impl<T> myStack<T> {
     pub fn new() -> Self {
         Self {
-			//TODO
 			q1:Queue::<T>::new(),
 			q2:Queue::<T>::new()
         }
     }
     pub fn push(&mut self, elem: T) {
-        //TODO
+        self.q1.enqueue(elem);
     }
     pub fn pop(&mut self) -> Result<T, &str> {
-        //TODO
-		Err("Stack is empty")
+        if self.q1.is_empty() {
+            return Err("Stack is empty");
+        }
+
+        // 将 q1 中除最后一个元素外全部移到 q2
+        while self.q1.size() > 1 {
+            let val = match self.q1.dequeue() {
+                Ok(v) => v,
+                Err(_) => return Err("Stack is empty"),
+            };
+            self.q2.enqueue(val);
+        }
+
+        // 弹出 q1 中最后一个元素，把错误转换为 'static 字面量
+        // 这样 result 就不再借用 self.q1，后面的 swap 才不会冲突
+        let result = match self.q1.dequeue() {
+            Ok(v) => Ok(v),
+            Err(_) => Err("Stack is empty"),
+        };
+
+        // 交换 q1 和 q2，使 q1 重新成为主队列
+        std::mem::swap(&mut self.q1, &mut self.q2);
+
+        result
     }
     pub fn is_empty(&self) -> bool {
-		//TODO
-        true
+		self.q1.is_empty() && self.q2.is_empty()
     }
 }
 
